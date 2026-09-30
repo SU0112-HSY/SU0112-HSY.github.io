@@ -2,17 +2,20 @@
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<title>像素习惯养成监督员【完整版-带动画】</title>
+<!-- 新增手机适配核心标签 -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>像素习惯养成监督员【完整版-带动画+手机适配】</title>
 <style>
 *{box-sizing:border-box;font-family:system-ui}
-body{max-width:640px;margin:30px auto;padding:20px}
-.box{border:1px solid #ccc;padding:18px;border-radius:12px;margin:14px 0}
-#canvasBox{width:128px;height:128px;border:2px solid #aaa;margin:12px 0;background:#f8f8f8}
-button{padding:9px 16px;margin:5px;border:none;background:#3b74ec;color:#fff;border-radius:8px;font-size:14px}
+body{max-width:640px;margin:20px auto;padding:15px}
+.box{border:1px solid #ccc;padding:16px;border-radius:12px;margin:12px 0}
+#canvasBox{width:128px;height:128px;border:2px solid #aaa;margin:10px 0;background:#f8f8f8}
+button{padding:12px 16px;margin:6px;border:none;background:#3b74ec;color:#fff;border-radius:8px;font-size:16px}
 .btngreen{background:#34a853;}
 .btngrey{background:#888;}
-select,input{padding:7px;font-size:14px;margin:4px}
-#resultText{line-height:1.8;margin-top:10px}
+select,input{padding:10px;font-size:16px;margin:4px;width:100%;max-width:300px}
+#resultText{line-height:1.8;margin-top:10px;font-size:15px}
+h2{font-size:20px;text-align:center}
 </style>
 </head>
 <body>
@@ -142,10 +145,10 @@ function addCheckIn(){
 //核心算法
 function calc(){
   const sel = document.getElementById('bigFiveSel').value
-  const finish = Number(document.getElementById('finish').value)
-  const unfinish = Number(document.getElementById('unfinish').value)
-  const delayDay = Number(document.getElementById('delayDay').value)
-let pixel_appearance,task_difficulty;
+const finish = Number(document.getElementById('finish').value)
+   const unfinish = Number(document.getElementById('unfinish').value)
+   const delayDay = Number(document.getElementById('delayDay').value)
+   let pixel_appearance,task_difficulty;
    if(sel==="highCon"){
      pixel_appearance="干练简约像素小人";
      task_difficulty="标准难度";
@@ -197,4 +200,3 @@ let pixel_appearance,task_difficulty;
  </script>
  </body>
  </html>
-
