@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>像素习惯养成监督员【完整版-带动画】</title>
+<style>
+*{box-sizing:border-box;font-family:system-ui}
+body{max-width:640px;margin:30px auto;padding:20px}
+.box{border:1px solid #ccc;padding:18px;border-radius:12px;margin:14px 0}
+#canvasBox{width:128px;height:128px;border:2px solid #aaa;margin:12px 0;background:#f8f8f8}
+button{padding:9px 16px;margin:5px;border:none;background:#3b74ec;color:#fff;border-radius:8px;font-size:14px}
+.btngreen{background:#34a853;}
+.btngrey{background:#888;}
+select,input{padding:7px;font-size:14px;margin:4px}
+#resultText{line-height:1.8;margin-top:10px}
+</style>
+</head>
+<body>
+<h2>像素习惯养成监督员｜AI像素小人</h2>
+
+<div class="box">
+  <div>选择大五人格特质：</div>
+  <select id="bigFiveSel">
+    <option value="highCon">高尽责性</option>
+    <option value="highNeu">高神经质</option>
+    <option value="highExt">高外倾性</option>
+    <option value="normal">普通人格</option>
+  </select>
+  <br><br>
+  <div>今日完成任务：<input type="number" id="finish" value="0" min="0"></div>
+  <div>未完成任务数量：<input type="number" id="unfinish" value="0" min="0"></div>
+  <div>连续拖延天数：<input type="number" id="delayDay" value="0" min="0"></div>
+  <br>
+  <button class="btngreen" onclick="addCheckIn()">今日打卡</button>
+  <button onclick="calc()">运行算法，更新像素小人</button>
+</div>
+
+<div class="box">
+  <h4>像素小人展示区</h4>
+  <canvas id="canvasBox" width="128" height="128"></canvas>
+  <div id="resultText"></div>
+</div>
+
+<script>
+const canvas = document.getElementById("canvasBox");
+const ctx = canvas.getContext("2d");
+const pixelSize = 8;
+let checkInCount = 0;
+let currentStatus = "normal";
+let currentPersonality = "normal";
+let time = 0;
+
+// 绘制像素小人，增加偏移实现动画
+function drawPixelMan(status,personality,tick){
+  ctx.clearRect(0,0,128,128);
+  let baseColor,skin,eyeColor;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  //人格配色
+  if(personality === "highCon") baseColor="#2b60de";
+  else if(personality==="highNeu") baseColor="#e88ea2";
+  else if(personality==="highExt") baseColor="#f2992e";
+  else baseColor="#5488dd";
+
+  skin="#ffdfba"; eyeColor="#000000";
+
+  // 不同状态动画偏移
+  if(status === "happy"){
+    baseColor = brighten(baseColor,20);
+    //开心：上下跳跃
+    offsetY = Math.sin(tick*0.12)*3;
+  }else if(status==="tired"){
+    baseColor = darken(baseColor,30);
+    eyeColor="#444";
+    //疲惫：缓慢左右晃
+    offsetX = Math.sin(tick*0.06)*2;
+  }else if(status==="sick"){
+    baseColor = darken(baseColor,45);
+    skin="#b8b0a6";
+    eyeColor="#666";
+    //生病：快速左右眩晕晃动
+    offsetX = Math.sin(tick*0.18)*4;
+  }else{
+    //待机：呼吸上下浮动
+    offsetY = Math.sin(tick*0.08)*2;
+  }
+
+  //头部
+  drawRect(7+offsetX,2+offsetY,4,4,skin);
+  //身体
+  drawRect(7+offsetX,6+offsetY,4,5,baseColor);
+  //腿
+  drawRect(7+offsetX,11+offsetY,2,3,baseColor);
+  drawRect(9+offsetX,11+offsetY,2,3,baseColor);
+
+  //表情
+  if(status==="happy"){
+    drawRect(8+offsetX,3+offsetY,1,1,eyeColor);
+    drawRect(10+offsetX,3+offsetY,1,1,eyeColor);
+    drawRect(8+offsetX,4+offsetY,3,1,"#ff6b6b");
+  }else if(status==="tired"){
+    drawRect(8+offsetX,3+offsetY,1,1,eyeColor);
+    drawRect(10+offsetX,3+offsetY,1,1,eyeColor);
+    drawRect(8+offsetX,5+offsetY,3,1,"#888888");
+  }else if(status==="sick"){
+    drawRect(8+offsetX,3+offsetY,1,1,"#888888");
+    drawRect(10+offsetX,3+offsetY,1,1,"#888888");
+    drawRect(8+offsetX,5+offsetY,3,1,"#666666");
+    drawRect(6+offsetX,1+offsetY,1,1,"#99cccc");
+    drawRect(11+offsetX,1+offsetY,1,1,"#99cccc");
+  }else{
+    drawRect(8+offsetX,3+offsetY,1,1,eyeColor);
+    drawRect(10+offsetX,3+offsetY,1,1,eyeColor);
+  }
+}
+
+function drawRect(x,y,w,h,color){
+  ctx.fillStyle=color;
+  ctx.fillRect(x*pixelSize,y*pixelSize,w*pixelSize,h*pixelSize);
+}
+function brighten(hex,percent){
+  let num = parseInt(hex.slice(1),16);
+  let r = Math.min(255,(num>>16)+percent);
+  let g = Math.min(255,((num>>8)&0x00FF)+percent);
+  let b = Math.min(255,(num&0x0000FF)+percent);
+  return `rgb(${r},${g},${b})`
+}
+function darken(hex,percent){
+  let num = parseInt(hex.slice(1),16);
+  let r = Math.max(0,(num>>16)-percent);
+  let g = Math.max(0,((num>>8)&0x00FF)-percent);
+  let b = Math.max(0,(num&0x0000FF)-percent);
+  return `rgb(${r},${g},${b})`
+}
+
+function addCheckIn(){
+  checkInCount +=1;
+  alert(`打卡成功！累计打卡${checkInCount}次，像素小人获得成长值！`)
+}
+
+//核心算法
+function calc(){
+  const sel = document.getElementById('bigFiveSel').value
+  const finish = Number(document.getElementById('finish').value)
+  const unfinish = Number(document.getElementById('unfinish').value)
+  const delayDay = Number(document.getElementById('delayDay').value)
+let pixel_appearance,task_difficulty;
+   if(sel==="highCon"){
+     pixel_appearance="干练简约像素小人";
+     task_difficulty="标准难度";
+   }else if(sel==="highNeu"){
+     pixel_appearance="柔和软萌像素小人";
+     task_difficulty="微习惯低难度";
+   }else if(sel==="highExt"){
+     pixel_appearance="活泼多彩像素小人";
+     task_difficulty="中等难度，带打卡奖励";
+   }else{
+     pixel_appearance="基础通用像素小人";
+     task_difficulty="入门难度";
+   }
+   const laziness_index = unfinish*8 + delayDay*12;
+   let remind_frequency,pixel_state,drawStatus;
+   if(laziness_index>=70){
+     remind_frequency="高频率提醒";
+     pixel_state="萎靡生病";
+     drawStatus="sick";
+   }else if(laziness_index>30){
+     remind_frequency="中等提醒";
+     pixel_state="疲惫状态";
+     drawStatus="tired";
+   }else{
+     remind_frequency="低频率提醒";
+     pixel_state="开心成长，解锁换装";
+     drawStatus="happy";
+   }
+   //更新全局状态，动画循环读取这个状态
+   currentStatus = drawStatus;
+   currentPersonality = sel;
+   const res = `
+ 专属形象：${pixel_appearance}<br>
+ 任务难度：${task_difficulty}<br>
+ 懒惰指数：${laziness_index}<br>
+ 小人状态：${pixel_state}<br>
+ 监督提醒等级：${remind_frequency}<br>
+ 累计打卡次数：${checkInCount}次
+   `
+   document.getElementById('resultText').innerHTML=res
+ }
+ //动画循环
+ function animate(){
+   time++;
+   drawPixelMan(currentStatus,currentPersonality,time);
+   requestAnimationFrame(animate);
+ }
+ animate();
+ </script>
+ </body>
+ </html>
+
